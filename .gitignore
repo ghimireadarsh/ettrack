@@ -9,3 +9,4 @@ logs/
 result_plots/
 segmentation_results/
 */logs/
+.idea/
