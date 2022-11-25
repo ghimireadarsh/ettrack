@@ -295,7 +295,7 @@ class Tracker:
 
                 x, y, w, h = cv.selectROI(display_name, frame_disp, fromCenter=False)
                 init_state = [x, y, w, h]
-                tracker.initialize(frame, _build_init_info(init_state))
+                state_input = tracker.initialize(frame, _build_init_info(init_state))
                 output_boxes.append(init_state)
                 break
 
@@ -308,8 +308,14 @@ class Tracker:
             frame_disp = frame.copy()
 
             # Draw box
-            out = tracker.track(frame)
-            state = [int(s) for s in out['target_bbox'][1]]
+            timer = cv.getTickCount()
+            out = tracker.track(frame, state_input)
+            fps = cv.getTickFrequency() / (cv.getTickCount() - timer)
+            # state = [int(s) for s in out['target_bbox'][1]]
+            state = [int(s) for s in out['target_bbox']]
+
+
+
             output_boxes.append(state)
 
             cv.rectangle(frame_disp, (state[0], state[1]), (state[2] + state[0], state[3] + state[1]),
@@ -322,6 +328,9 @@ class Tracker:
                        font_color, 1)
             cv.putText(frame_disp, 'Press q to quit', (20, 80), cv.FONT_HERSHEY_COMPLEX_SMALL, 1,
                        font_color, 1)
+
+            print("FPS:", fps)
+            cv.putText(frame_disp, "FPS : " + str(int(fps)), (100, 50), cv.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
 
             # Display the resulting frame
             cv.imshow(display_name, frame_disp)
